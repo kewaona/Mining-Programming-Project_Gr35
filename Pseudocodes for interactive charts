@@ -1,0 +1,138 @@
+BEGIN
+
+  # Step 1: Load CSV files
+  SET path_countries = "path_to_countries.csv"
+  SET path_minerals = "path_to_minerals.csv"
+  SET path_production_stats = "path_to_production_stats.csv"
+  SET path_roles = "path_to_roles.csv"
+  SET path_sites = "path_to_sites.csv"
+  SET path_users = "path_to_users.csv"
+
+  LOAD countries FROM path_countries
+  LOAD minerals FROM path_minerals
+  LOAD production_stats FROM path_production_stats
+  LOAD roles FROM path_roles
+  LOAD sites FROM path_sites
+  LOAD users FROM path_users
+
+  # Step 2: Merge data for production trends
+  CREATE merged_line AS production_stats
+      MERGE minerals (select MineralID, MineralName) ON MineralID
+      MERGE countries (select CountryID, CountryName) ON CountryID
+
+  # Step 3: Create line chart of production trends
+  PLOT line_chart USING merged_line
+      x = Year
+      y = Production_tonnes
+      color = CountryName
+      markers = TRUE
+      hover_data = [MineralName, CountryName, Production_tonnes, ExportValue_BillionUSD]
+      title = "Production Trends by Country (with Export Value per Mineral)"
+      yaxis_tick0 = 0
+      yaxis_dtick = 20000
+      template = "white"
+
+  DISPLAY line_chart
+
+  # Step 4: Boxplot of mineral market prices
+  PLOT boxplot USING minerals
+      x = MarketPriceUSD_per_tonne
+      hover_data = [MineralName, Description]
+      points = "all"
+      marker_color = "teal"
+      box_mean = TRUE
+      title = "Distribution of Mineral Market Prices (Interactive)"
+
+  DISPLAY boxplot
+
+  # Step 5: Scatterplot of Market Price vs Production
+  MERGE production_stats WITH minerals ON MineralID INTO merged_data
+
+  PLOT scatterplot USING merged_data
+      x = MarketPriceUSD_per_tonne
+      y = Production_tonnes
+      hue = Year
+      style = Year
+      size = 100
+      palette = "viridis"
+      yscale = "log"
+      title = "Relationship Between Market Price and Production Volume"
+
+  DISPLAY scatterplot
+
+  # Step 6: Compute average export value per mineral
+  GROUP merged_data BY MineralName
+      CALCULATE mean MarketPriceUSD_per_tonne AND ExportValue_BillionUSD INTO avg_export
+
+  PLOT regression_plot USING avg_export
+      x = MarketPriceUSD_per_tonne
+      y = ExportValue_BillionUSD
+      scatter_color = "steelblue"
+      line_color = "darkorange"
+      title = "Export Value vs Market Price (Economic Significance)"
+
+  DISPLAY regression_plot
+
+  # Step 7: Correlation heatmap
+  MERGE production_stats WITH minerals (select MineralID, MarketPriceUSD_per_tonne) ON MineralID INTO corr_df
+
+  CALCULATE correlation_matrix FOR ['Production_tonnes', 'ExportValue_BillionUSD', 'MarketPriceUSD_per_tonne']
+
+  PLOT heatmap USING correlation_matrix
+      title = "Correlation Between Production, Export Value, and Market Price"
+
+  DISPLAY heatmap
+
+  # Step 8: Bubble chart - production, price, and export value
+  MERGE production_stats WITH minerals (select MineralID, MineralName, MarketPriceUSD_per_tonne) ON MineralID
+  MERGE WITH countries (select CountryID, CountryName) ON CountryID INTO bubble_df
+
+  PLOT bubble_chart USING bubble_df
+      x = Production_tonnes
+      y = MarketPriceUSD_per_tonne
+      size = ExportValue_BillionUSD
+      color = CountryName
+      hover_name = MineralName
+      size_max = 40
+      title = "Balancing Production, Market Price, and Export Value Across Countries"
+
+  DISPLAY bubble_chart
+
+  # Step 9: Interactive bar chart - average export value per mineral
+  GROUP production_stats BY MineralID
+      CALCULATE mean ExportValue_BillionUSD INTO avg_export
+  MERGE avg_export WITH minerals (select MineralID, MineralName) ON MineralID
+
+  PLOT bar_chart USING avg_export
+      x = MineralName
+      y = ExportValue_BillionUSD
+      text = ExportValue_BillionUSD
+      color = ExportValue_BillionUSD
+      color_scale = "Viridis"
+      hover_data = [ExportValue_BillionUSD]
+      title = "Average Export Value by Mineral (Billion USD)"
+      xaxis_tickangle = -45
+
+  DISPLAY bar_chart
+
+  # Step 10: Interactive scatter charts
+  PLOT scatter_chart_1 USING production_stats MERGED WITH minerals
+      x = MarketPriceUSD_per_tonne
+      y = ExportValue_BillionUSD
+      color = MineralName
+      size = ExportValue_BillionUSD
+      title = "Export Value vs Market Price (Interactive)"
+
+  DISPLAY scatter_chart_1
+
+  PLOT scatter_chart_2 USING production_stats MERGED WITH minerals
+      x = Production_tonnes
+      y = MarketPriceUSD_per_tonne
+      color = MineralName
+      size = ExportValue_BillionUSD
+      xaxis_type = "log"
+      title = "Market Price vs Production Tonnes (Interactive)"
+
+  DISPLAY scatter_chart_2
+
+END
