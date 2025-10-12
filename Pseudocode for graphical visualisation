@@ -1,0 +1,60 @@
+BEGIN
+
+  # Step 1: Define country profiles (excluding Zimbabwe)
+  CREATE countries_table WITH columns:
+      Country, Latitude, Longitude, GDP_BillionUSD, MiningRevenue_BillionUSD
+  ADD rows for South Africa, DRC (Congo), Namibia, Mozambique
+
+  # Step 2: Define major mineral deposits (excluding Zimbabwe)
+  CREATE deposits_table WITH columns:
+      Country, DepositName, Mineral, Latitude, Longitude, Production_tonnes
+  ADD relevant deposits for remaining countries
+
+  # Step 3: Define color mapping for each mineral
+  SET mineral_colors = {
+      "Lithium": "blue",
+      "Cobalt": "darkblue",
+      "Manganese": "brown",
+      "Graphite": "gray"
+  }
+
+  # Step 4: Initialize interactive map
+  INITIALIZE folium_map CENTERED at Latitude=-10, Longitude=25, zoom=3
+  SET map_tiles = "cartodb positron"
+
+  # Step 5: Add country markers with popups
+  FOR each row IN countries_table DO
+      CREATE popup_html showing:
+          Country name
+          GDP in Billion USD
+          Mining Revenue in Billion USD
+      CREATE iframe FROM popup_html
+      CREATE folium popup USING iframe
+      ADD folium marker TO folium_map AT row.Latitude, row.Longitude
+          WITH popup and darkblue flag icon
+  END FOR
+
+  # Step 6: Add mineral deposit markers (colored by mineral type)
+  FOR each row IN deposits_table DO
+      CREATE popup_html showing:
+          Deposit name
+          Country
+          Mineral type
+          Production in tonnes
+      CREATE iframe FROM popup_html
+      CREATE folium popup USING iframe
+      GET color FROM mineral_colors USING row.Mineral (default = orange)
+      ADD folium circle marker TO folium_map AT row.Latitude, row.Longitude
+          WITH radius=6, color, fill_color=color, fill_opacity=0.7, popup
+  END FOR
+
+  # Step 7: Add mineral legend
+  CREATE HTML legend showing:
+      Lithium, Cobalt, Manganese, Graphite
+  ADD folium DivIcon marker TO folium_map AT fixed location
+      WITH legend HTML
+
+  # Step 8: Display interactive map
+  SHOW folium_map
+
+END
