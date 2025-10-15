@@ -1,0 +1,235 @@
+# [IN GOOGLE COLAB]
+# African Critical Minerals Analysis Platform
+# Complete analysis with maps and charts
+
+import folium
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+print("🌍 African Critical Minerals Analysis Platform")
+print("=============================================")
+
+# Sample Data
+minerals_data = [
+    {"MineralID": 1, "MineralName": "Cobalt", "Description": "Used in batteries and superalloys", "MarketPriceUSD_per_tonne": 75000},
+    {"MineralID": 2, "MineralName": "Lithium", "Description": "Essential for lithium-ion batteries", "MarketPriceUSD_per_tonne": 25000},
+    {"MineralID": 3, "MineralName": "Graphite", "Description": "Used in batteries and lubricants", "MarketPriceUSD_per_tonne": 1200},
+    {"MineralID": 4, "MineralName": "Manganese", "Description": "Used in steel production and batteries", "MarketPriceUSD_per_tonne": 1800}
+]
+
+countries_data = [
+    {"CountryID": 1, "CountryName": "South Africa", "GDP_BillionUSD": 405, "MiningRevenue_BillionUSD": 55, "KeyProjects": "Bushveld Complex PGM mines"},
+    {"CountryID": 2, "CountryName": "Democratic Republic of Congo", "GDP_BillionUSD": 58, "MiningRevenue_BillionUSD": 12, "KeyProjects": "Cobalt and copper mines in Katanga"},
+    {"CountryID": 3, "CountryName": "Zambia", "GDP_BillionUSD": 27, "MiningRevenue_BillionUSD": 8, "KeyProjects": "Copperbelt mining operations"},
+    {"CountryID": 4, "CountryName": "Zimbabwe", "GDP_BillionUSD": 22, "MiningRevenue_BillionUSD": 3, "KeyProjects": "Great Dyke platinum mines"}
+]
+
+# Convert to DataFrames
+minerals_df = pd.DataFrame(minerals_data)
+countries_df = pd.DataFrame(countries_data)
+
+print("📊 Data Loaded Successfully!")
+print(f"   Minerals: {len(minerals_df)}")
+print(f"   Countries: {len(countries_df)}")
+
+
+# Create Interactive Map (YOUR GROUP MEMBER'S CODE)
+print("🗺️ Creating Interactive Map...")
+
+# Country data for map
+countries_map = pd.DataFrame({
+    'Country': ['South Africa', 'DRC (Congo)', 'Namibia', 'Mozambique', 'Zambia', 'Zimbabwe'],
+    'Latitude': [-30.5595, -2.8, -22.6, -18.6, -13.5, -19.0],
+    'Longitude': [22.9375, 23.7, 17.1, 35.5, 27.8, 29.0],
+    'GDP_BillionUSD': [350, 55, 15, 20, 27, 22],
+    'MiningRevenue_BillionUSD': [25, 12, 3, 4, 8, 3],
+})
+
+# Mineral deposits
+deposits = pd.DataFrame({
+    'Country': ['South Africa', 'South Africa', 'DRC (Congo)', 'Namibia', 'Mozambique', 'Zambia'],
+    'DepositName': ['Waterberg Lithium', 'Bushveld PGMs', 'Kolwezi Cobalt', 'Otjozondu Manganese', 'Balama Graphite', 'Copperbelt Mines'],
+    'Mineral': ['Lithium', 'Platinum', 'Cobalt', 'Manganese', 'Graphite', 'Copper'],
+    'Latitude': [-24.5, -25.0, -10.7, -22.0, -13.3, -12.5],
+    'Longitude': [28.5, 28.0, 25.5, 17.2, 38.2, 27.5],
+    'Production_tonnes': [40000, 250000, 95000, 30000, 12000, 800000]
+})
+
+# Create map
+mineral_colors = {
+    'Lithium': 'blue', 'Cobalt': 'darkblue', 'Manganese': 'brown',
+    'Graphite': 'gray', 'Platinum': 'purple', 'Copper': 'orange'
+}
+
+map_center = [-10, 25]
+m = folium.Map(location=map_center, zoom_start=3, tiles='cartodb positron')
+
+# Add country markers
+for _, row in countries_map.iterrows():
+    folium.Marker(
+        location=[row['Latitude'], row['Longitude']],
+        popup=f"<h4>{row['Country']}</h4><b>GDP:</b> ${row['GDP_BillionUSD']}B<br><b>Mining Revenue:</b> ${row['MiningRevenue_BillionUSD']}B",
+        icon=folium.Icon(color='darkblue', icon='flag')
+    ).add_to(m)
+
+# Add mineral deposits
+for _, row in deposits.iterrows():
+    folium.CircleMarker(
+        location=[row['Latitude'], row['Longitude']],
+        radius=8,
+        color=mineral_colors.get(row['Mineral'], 'green'),
+        fill=True,
+        fill_color=mineral_colors.get(row['Mineral'], 'green'),
+        fill_opacity=0.7,
+        popup=f"<b>{row['DepositName']}</b><br><b>Mineral:</b> {row['Mineral']}<br><b>Production:</b> {row['Production_tonnes']:,} tonnes"
+    ).add_to(m)
+
+# Add legend
+legend_html = '''
+<div style="position: fixed; bottom: 50px; left: 50px; width: 200px; height: 180px;
+            background-color: white; opacity: 0.9; padding: 10px; font-size: 12px;
+            border-radius: 5px; border: 2px solid grey; z-index: 1000;">
+    <h4>🌍 Mineral Legend</h4>
+    <li><span style="background:blue; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Lithium</li>
+    <li><span style="background:darkblue; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Cobalt</li>
+    <li><span style="background:brown; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Manganese</li>
+    <li><span style="background:gray; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Graphite</li>
+    <li><span style="background:purple; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Platinum</li>
+    <li><span style="background:orange; padding: 3px;">&nbsp;&nbsp;&nbsp;</span> Copper</li>
+</div>
+'''
+m.get_root().html.add_child(folium.Element(legend_html))
+
+print("✅ Interactive Map Created!")
+display(m)
+
+
+
+# Create Interactive Charts
+print("📈 Creating Data Visualizations...")
+
+# Price Comparison Chart
+fig1 = px.bar(minerals_df, x='MineralName', y='MarketPriceUSD_per_tonne',
+             title='💎 Critical Mineral Prices (USD per tonne)',
+             color='MineralName',
+             color_discrete_sequence=px.colors.qualitative.Set3)
+
+fig1.show()
+
+# Country Revenue Chart
+fig2 = px.bar(countries_df, x='CountryName', y='MiningRevenue_BillionUSD',
+             title='🌍 Mining Revenue by Country (Billion USD)',
+             color='CountryName')
+
+fig2.show()
+
+# GDP vs Mining Revenue Scatter
+fig3 = px.scatter(countries_df, x='GDP_BillionUSD', y='MiningRevenue_BillionUSD',
+                 size='MiningRevenue_BillionUSD', color='CountryName',
+                 title='📊 GDP vs Mining Revenue Relationship',
+                 hover_name='CountryName', size_max=60)
+
+fig3.show()
+
+print("✅ All Visualizations Complete!")
+
+
+
+  # IN COLAB - Simple Web Interface
+from IPython.display import HTML, display
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+
+# Simple web interface in Colab
+def create_dashboard():
+    clear_output()
+
+    # Header
+    display(HTML("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 20px; border-radius: 10px; color: white; text-align: center;">
+        <h1>🌍 African Critical Minerals Platform</h1>
+        <p>Interactive Data Analytics Dashboard</p>
+    </div>
+    """))
+
+    # Navigation buttons
+    btn_map = widgets.Button(description="🗺️ Interactive Map", button_style='primary')
+    btn_analytics = widgets.Button(description="📊 Analytics", button_style='success')
+    btn_data = widgets.Button(description="💎 Mineral Data", button_style='info')
+
+    output = widgets.Output()
+
+    def show_map(b):
+        with output:
+            clear_output()
+            print("Loading Interactive Map...")
+            # Your map code here
+            display(m)  # Your folium map
+
+    def show_analytics(b):
+        with output:
+            clear_output()
+            print("Loading Analytics...")
+            # Your chart code here
+            fig1.show()
+            fig2.show()
+            fig3.show()
+
+    def show_data(b):
+        with output:
+            clear_output()
+            print("Mineral Data:")
+            display(minerals_df)
+            print("\nCountry Data:")
+            display(countries_df)
+
+    btn_map.on_click(show_map)
+    btn_analytics.on_click(show_analytics)
+    btn_data.on_click(show_data)
+
+    # Display navigation
+    display(widgets.HBox([btn_map, btn_analytics, btn_data]))
+    display(output)
+
+# Run the dashboard
+create_dashboard()
+
+
+
+
+
+#tranfering the code
+print("🔄 READY-TO-TRANSFER CODE BLOCKS")
+print("=================================")
+
+# BLOCK 1: Interactive Map Function (Copy this to Flask)
+def create_interactive_map():
+    """
+    COPY THIS ENTIRE FUNCTION TO YOUR FLASK APP
+    """
+    # Your working map code here
+    countries_map = pd.DataFrame({
+        'Country': ['South Africa', 'DRC (Congo)', 'Namibia', 'Mozambique', 'Zambia', 'Zimbabwe'],
+        'Latitude': [-30.5595, -2.8, -22.6, -18.6, -13.5, -19.0],
+        'Longitude': [22.9375, 23.7, 17.1, 35.5, 27.8, 29.0],
+        'GDP_BillionUSD': [350, 55, 15, 20, 27, 22],
+        'MiningRevenue_BillionUSD': [25, 12, 3, 4, 8, 3],
+    })
+
+    deposits = pd.DataFrame({
+        'Country': ['South Africa', 'South Africa', 'DRC (Congo)', 'Namibia', 'Mozambique', 'Zambia'],
+        'DepositName': ['Waterberg Lithium', 'Bushveld PGMs', 'Kolwezi Cobalt', 'Otjozondu Manganese', 'Balama Graphite', 'Copperbelt Mines'],
+        'Mineral': ['Lithium', 'Platinum', 'Cobalt', 'Manganese', 'Graphite', 'Copper'],
+        'Latitude': [-24.5, -25.0, -10.7, -22.0, -13.3, -12.5],
+        'Longitude': [28.5, 28.0, 25.5, 17.2, 38.2, 27.5],
+        'Production_tonnes': [40000, 250000, 95000, 30000, 12000, 800000]
+    })
+
+    # ... rest of your map code
+    return m  # Return the folium map object
+
+print("✅ Map function ready for transfer to Flask!")
+  
