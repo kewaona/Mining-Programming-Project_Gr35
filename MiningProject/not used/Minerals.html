@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minerals - CHRONO MINERALS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌍 CHRONO MINERALS</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('minerals') }}" class="active">Minerals</a>
+            <a href="{{ url_for('countries') }}">Countries</a>
+            <a href="{{ url_for('map_view') }}">Map</a>
+        </div>
+        <div class="nav-user">
+            <span>{{ user.username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>💎 Critical Minerals Database</h1>
+        
+        <div class="minerals-grid">
+            {% for mineral in minerals %}
+            <div class="mineral-card">
+                <h3>{{ mineral.MineralName }}</h3>
+                <p class="mineral-id">ID: {{ mineral.MineralID }}</p>
+                <p class="mineral-desc">{{ mineral.Description }}</p>
+                <p class="mineral-price">💰 ${{ "{:,}".format(mineral.MarketPriceUSD_per_tonne) }} per tonne</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map - CHRONO MINERALS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .map-wrapper {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        .legend {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #333;
+        }
+        .flag-icon {
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+    <div class="nav-brand">🌍 CHRONO MINERALS</div>
+    <div class="nav-links">
+        <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+        
+        {% if session.user.role in ['administrator', 'researcher'] %}
+        <a href="{{ url_for('minerals') }}">💎 Minerals</a>
+        {% endif %}
+        
+        <a href="{{ url_for('countries') }}">🇿🇦 Countries</a>
+        
+        {% if session.user.role in ['administrator', 'researcher'] %}
+        <a href="{{ url_for('analytics') }}">📈 Analytics</a>
+        {% endif %}
+        
+        <a href="{{ url_for('interactive_map') }}">🗺️ Map</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout ({{ session.user.username }} - {{ session.user.role }})</a>
+    </div>
+</nav>
+
+    <div class="container">
+        <h1>🗺️ Interactive Mineral Map</h1>
+        <p class="subtitle">Explore mining sites and mineral deposits across Southern Africa</p>
+        
+        <!-- Map Container -->
+        <div class="map-wrapper">
+            {{ map_html|safe }}
+        </div>
+        
+        <!-- Legend -->
+        <div class="legend">
+            <h3>🗺️ Map Legend</h3>
+            <div class="legend-grid">
+                <!-- Country Markers -->
+                <div class="legend-item">
+                    <div class="flag-icon" style="color: red;">📍</div>
+                    <div>
+                        <strong>Red Flags</strong><br>
+                        <small>Countries with GDP & revenue data</small>
+                    </div>
+                </div>
+                
+                <!-- Mineral Deposits -->
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: blue;"></div>
+                    <div>
+                        <strong>Lithium</strong><br>
+                        <small>Waterberg deposits</small>
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: darkblue;"></div>
+                    <div>
+                        <strong>Cobalt</strong><br>
+                        <small>Kolwezi mines</small>
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: brown;"></div>
+                    <div>
+                        <strong>Manganese</strong><br>
+                        <small>Otjozondu site</small>
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: gray;"></div>
+                    <div>
+                        <strong>Graphite</strong><br>
+                        <small>Balama mines</small>
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: purple;"></div>
+                    <div>
+                        <strong>Platinum</strong><br>
+                        <small>Bushveld complex</small>
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: orange;"></div>
+                    <div>
+                        <strong>Copper</strong><br>
+                        <small>Copperbelt region</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</body>
+</html>

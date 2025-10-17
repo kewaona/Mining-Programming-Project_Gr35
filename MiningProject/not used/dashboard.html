@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CHRONO MINERALS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        .welcome-card {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌍 CHRONO MINERALS</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('interactive_map') }}">Interactive Map</a>
+            <a href="{{ url_for('analytics') }}">Analytics</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Welcome to CHRONO MINERALS</h1>
+        <p class="subtitle">African Critical Minerals Intelligence Platform</p>
+        
+        <div class="welcome-card">
+            <h2>Welcome, {{ user.username }}! 👋</h2>
+            <p>You are logged in as: <strong>{{ user.role }}</strong></p>
+            <p>Access level: Full platform access</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card" onclick="window.location.href='{{ url_for('interactive_map') }}'">
+                <h3>🗺️ Interactive Map</h3>
+                <p>Explore mineral deposits and mining sites across Africa with our interactive mapping tool</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='{{ url_for('analytics') }}'">
+                <h3>📊 Data Analytics</h3>
+                <p>View market trends, price charts, and revenue analytics for critical minerals</p>
+            </div>
+            <div class="feature-card">
+                <h3>💎 Mineral Database</h3>
+                <p>Access comprehensive data on cobalt, lithium, graphite, manganese and more</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌍 Country Profiles</h3>
+                <p>Detailed information on African countries' mining sectors and economic data</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

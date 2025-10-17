@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries - CHRONO MINERALS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌍 CHRONO MINERALS</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('minerals') }}">Minerals</a>
+            <a href="{{ url_for('countries') }}" class="active">Countries</a>
+            <a href="{{ url_for('map_view') }}">Map</a>
+        </div>
+        <div class="nav-user">
+            <span>{{ user.username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🌍 Country Profiles</h1>
+        
+        {% for country in countries %}
+        <div class="country-card">
+            <h2>{{ country.CountryName }}</h2>
+            <div class="country-details">
+                <p><strong>GDP:</strong> ${{ country.GDP_BillionUSD }} Billion USD</p>
+                <p><strong>Mining Revenue:</strong> ${{ country.MiningRevenue_BillionUSD }} Billion USD</p>
+                <p><strong>Key Projects:</strong> {{ country.KeyProjects }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

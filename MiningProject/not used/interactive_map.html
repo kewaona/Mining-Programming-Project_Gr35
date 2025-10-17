@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map - CHRONO MINERALS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.1);
+        }
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .map-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+        }
+        #map {
+            height: 650px;
+            width: 100%;
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+        }
+        .info-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 2px solid #ddd;
+        }
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌍 CHRONO MINERALS</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('interactive_map') }}" class="active">Interactive Map</a>
+            <a href="{{ url_for('analytics') }}">Analytics</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        <div class="nav-user">
+            <span>Welcome, {{ user.username }} ({{ user.role }})</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🗺️ Interactive Mineral Map</h1>
+        <p class="subtitle">Explore critical mineral deposits across Africa</p>
+        
+        <div class="map-container">
+            <!-- The Folium map will be embedded here -->
+            {{ map_html|safe }}
+        </div>
+
+        <div class="info-panel">
+            <h3>Map Features & Legend</h3>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: darkblue;"></div>
+                    <span><strong>Country Flags</strong> - Click for GDP & Revenue data</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: blue;"></div>
+                    <span><strong>Lithium</strong> deposits</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: darkblue;"></div>
+                    <span><strong>Cobalt</strong> deposits</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: brown;"></div>
+                    <span><strong>Manganese</strong> deposits</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: gray;"></div>
+                    <span><strong>Graphite</strong> deposits</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: purple;"></div>
+                    <span><strong>Platinum</strong> deposits</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background-color: orange;"></div>
+                    <span><strong>Copper</strong> deposits</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px; padding: 20px; background: #e8f4fd; border-radius: 8px;">
+                <h4>💡 How to Use This Map:</h4>
+                <ul>
+                    <li><strong>Click on country flags</strong> to view GDP and mining revenue data</li>
+                    <li><strong>Click on colored circles</strong> to see detailed mineral deposit information</li>
+                    <li><strong>Zoom in/out</strong> using mouse wheel or +/- buttons</li>
+                    <li><strong>Drag to pan</strong> and explore different regions</li>
+                    <li>Use the <strong>legend above</strong> to identify different mineral types</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</body>
+</html>

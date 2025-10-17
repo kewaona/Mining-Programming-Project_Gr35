@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DEBUG Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body { margin: 20px; font-family: Arial; }
+        #map { 
+            height: 600px; 
+            width: 100%; 
+            border: 3px solid red;
+            background: lightgray;
+        }
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗺️ DEBUG MAP TEST</h1>
+    
+    <div class="debug-info">
+        <strong>Debug Info:</strong> 
+        If map works, you'll see it below. If not, you'll see gray background.
+    </div>
+    
+    <div id="map">
+        {{ map_html|safe }}
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a> | 
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</body>
+</html>

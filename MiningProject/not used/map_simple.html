@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map - CHRONO MINERALS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f0f0f0; }
+        .navbar { background: #2c3e50; color: white; padding: 15px; margin: -20px -20px 20px -20px; }
+        .card { background: white; padding: 20px; margin: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        a { color: #3498db; text-decoration: none; margin: 10px; display: inline-block; padding: 10px; background: white; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🌍 CHRONO MINERALS - DEBUG MODE</h1>
+    </div>
+
+    <div class="card">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <p>Testing interactive features...</p>
+    </div>
+
+    <div class="card">
+        <h3>Test Links:</h3>
+        <a href="{{ url_for('debug_analytics') }}">📊 Test Charts</a>
+        <a href="{{ url_for('debug_map') }}">🗺️ Test Map</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+    </div>
+
+    <div class="card">
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: white; 
+        }
+        .navbar { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 15px; 
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        #map { 
+            height: 600px; 
+            width: 100%; 
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div>🌍 CHRONO MINERALS - Interactive Map</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>🗺️ Interactive Mineral Map</h1>
+        <p>Click on markers to see country and mineral deposit information</p>
+        
+        <div id="map">
+            {{ map_html|safe }}
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <h3>Legend:</h3>
+            <p>📍 <strong>Blue Flags</strong> - Countries with GDP and revenue data</p>
+            <p>🔵 <strong>Colored Circles</strong> - Mineral deposits (Blue=Lithium, Dark Blue=Cobalt, Brown=Manganese, Gray=Graphite, Purple=Platinum, Orange=Copper)</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</body>
+</html>

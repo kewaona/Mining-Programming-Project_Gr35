@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Profiles - CHRONO MINERALS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .country-card {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+    <div class="nav-brand">🌍 CHRONO MINERALS</div>
+    <div class="nav-links">
+        <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+        
+        {% if session.user.role in ['administrator', 'researcher'] %}
+        <a href="{{ url_for('minerals') }}">💎 Minerals</a>
+        {% endif %}
+        
+        <a href="{{ url_for('countries') }}">🇿🇦 Countries</a>
+        
+        {% if session.user.role in ['administrator', 'researcher'] %}
+        <a href="{{ url_for('analytics') }}">📈 Analytics</a>
+        {% endif %}
+        
+        <a href="{{ url_for('interactive_map') }}">🗺️ Map</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout ({{ session.user.username }} - {{ session.user.role }})</a>
+    </div>
+</nav>
+
+    <div class="container">
+        <h1>🌍 Country Profiles</h1>
+        
+        {% for country in countries %}
+        <div class="country-card">
+            <h2>{{ country.CountryName }}</h2>
+            <p><strong>GDP:</strong> ${{ country.GDP_BillionUSD }} Billion USD</p>
+            <p><strong>Mining Revenue:</strong> ${{ country.MiningRevenue_BillionUSD }} Billion USD</p>
+            <p><strong>Key Projects:</strong> {{ country.KeyProjects }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

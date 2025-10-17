@@ -1,0 +1,152 @@
+MODULE: Mineral_Database_System
+
+FUNCTION load_minerals_from_csv():
+    INPUT: minerals.csv file path
+    OUTPUT: List of mineral dictionaries OR empty list
+    
+    BEGIN
+        TRY:
+            READ minerals.csv USING pandas
+            CONVERT DataFrame to list of dictionaries
+            mineral_count = COUNT records loaded
+            PRINT "✅ Loaded [mineral_count] minerals from CSV"
+            RETURN mineral_data
+        EXCEPT FileNotFoundError:
+            PRINT "❌ minerals.csv not found"
+            RETURN empty_list
+        EXCEPT Exception as error:
+            PRINT "❌ Error loading minerals: [error]"
+            RETURN empty_list
+    END FUNCTION
+
+FUNCTION get_all_minerals():
+    INPUT: None
+    OUTPUT: List of all minerals for display
+    
+    BEGIN
+        mineral_list = GET minerals_data
+        PRINT "📋 Retrieving [count] minerals for display"
+        
+        FOR each mineral IN mineral_list:
+            ADD image_filename BASED ON mineral_name
+            FORMAT price WITH thousand separators
+            ENSURE required fields exist
+        END FOR
+        
+        RETURN formatted_mineral_list
+    END FUNCTION
+
+FUNCTION add_new_mineral(mineral_data):
+    INPUT: Dictionary with {name, description, price}
+    OUTPUT: Success status and updated minerals list
+    
+    BEGIN
+        VALIDATE mineral_data:
+            IF name is empty OR price is not number:
+                RETURN validation_error
+            END IF
+        
+        new_mineral_id = CURRENT_MAX_ID + 1
+        
+        new_mineral = {
+            'MineralID': new_mineral_id,
+            'MineralName': mineral_data.name,
+            'Description': mineral_data.description,
+            'MarketPriceUSD_per_tonne': mineral_data.price,
+            'Image': determine_image_filename(mineral_data.name)
+        }
+        
+        ADD new_mineral TO minerals_data list
+        PRINT "➕ Added new mineral: [mineral_data.name]"
+        
+        # Persist to CSV
+        save_minerals_to_csv()
+        
+        RETURN success, minerals_data
+    END FUNCTION
+
+FUNCTION delete_mineral(mineral_id):
+    INPUT: Mineral ID to delete
+    OUTPUT: Success status and updated minerals list
+    
+    BEGIN
+        original_count = LENGTH of minerals_data
+        
+        FILTER minerals_data:
+            KEEP minerals WHERE MineralID != target_id
+        
+        new_count = LENGTH of minerals_data
+        
+        IF new_count < original_count:
+            PRINT "🗑️ Deleted mineral ID: [mineral_id]"
+            save_minerals_to_csv()
+            RETURN success, minerals_data
+        ELSE:
+            PRINT "❌ Mineral ID [mineral_id] not found"
+            RETURN not_found_error, minerals_data
+        END IF
+    END FUNCTION
+
+FUNCTION save_minerals_to_csv():
+    INPUT: None (uses global minerals_data)
+    OUTPUT: Success status
+    
+    BEGIN
+        TRY:
+            CONVERT minerals_data to pandas DataFrame
+            WRITE DataFrame to minerals.csv file
+            PRINT "💾 Saved [count] minerals to CSV"
+            RETURN success
+        EXCEPT Exception as error:
+            PRINT "❌ Error saving minerals: [error]"
+            RETURN save_error
+    END FUNCTION
+
+FUNCTION search_minerals(search_term):
+    INPUT: Search string
+    OUTPUT: Filtered list of minerals
+    
+    BEGIN
+        IF search_term is empty:
+            RETURN all_minerals
+        END IF
+        
+        filtered_minerals = []
+        
+        FOR each mineral IN minerals_data:
+            mineral_name = mineral.MineralName lowercase
+            description = mineral.Description lowercase
+            search_lower = search_term lowercase
+            
+            IF search_lower IN mineral_name OR search_lower IN description:
+                ADD mineral TO filtered_minerals
+            END IF
+        END FOR
+        
+        PRINT "🔍 Found [count] minerals matching: [search_term]"
+        RETURN filtered_minerals
+    END FUNCTION
+
+FUNCTION get_mineral_statistics():
+    INPUT: None
+    OUTPUT: Dictionary of mineral statistics
+    
+    BEGIN
+        total_minerals = COUNT minerals_data
+        total_value = SUM all mineral prices
+        average_price = total_value / total_minerals
+        most_expensive = FIND mineral WITH highest price
+        cheapest = FIND mineral WITH lowest price
+        
+        stats = {
+            'total_count': total_minerals,
+            'total_value': total_value,
+            'average_price': average_price,
+            'most_expensive': most_expensive.MineralName,
+            'cheapest': cheapest.MineralName
+        }
+        
+        RETURN stats
+    END FUNCTION
+
+END MODULE

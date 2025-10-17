@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - CHRONO MINERALS</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section-title {
+            color: white;
+            text-align: center;
+            margin: 40px 0 20px 0;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🌍 CHRONO MINERALS</div>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+            
+            {% if session.user.role in ['administrator', 'researcher'] %}
+            <a href="{{ url_for('minerals') }}">💎 Minerals</a>
+            {% endif %}
+            
+            <a href="{{ url_for('countries') }}">🇿🇦 Countries</a>
+            
+            {% if session.user.role in ['administrator', 'researcher'] %}
+            <a href="{{ url_for('analytics') }}">📈 Analytics</a>
+            {% endif %}
+            
+            <a href="{{ url_for('interactive_map') }}">🗺️ Map</a>
+            <a href="{{ url_for('logout') }}">🚪 Logout ({{ session.user.username }} - {{ session.user.role }})</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>📊 Advanced Analytics Dashboard</h1>
+        
+        <h2 class="section-title">💰 Economic Analysis</h2>
+        <div class="charts-grid">
+            <div class="chart-container">
+                {{ price_html|safe }}
+            </div>
+            
+            <div class="chart-container">
+                {{ revenue_html|safe }}
+            </div>
+            
+            <div class="chart-container">
+                {{ gdp_html|safe }}
+            </div>
+            
+            <div class="chart-container">
+                {{ avg_export_html|safe }}
+            </div>
+        </div>
+
+        <h2 class="section-title">📈 Production & Market Trends</h2>
+        <div class="charts-grid">
+            <div class="chart-container">
+                {{ production_trends_html|safe }}
+            </div>
+            
+            <div class="chart-container">
+                {{ price_distribution_html|safe }}
+            </div>
+        </div>
+
+        <h2 class="section-title">⚖️ Market Relationships</h2>
+        <div class="charts-grid">
+            <div class="chart-container">
+                {{ export_vs_price_html|safe }}
+            </div>
+            
+            <div class="chart-container">
+                {{ production_vs_price_html|safe }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
